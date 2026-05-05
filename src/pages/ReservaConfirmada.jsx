@@ -1,5 +1,13 @@
 import { Link, useSearchParams } from 'react-router-dom'
 
+const formatHora12h = (hora24) => {
+  if (!hora24) return ''
+  const h = parseInt(hora24)
+  const period = h >= 12 ? 'pm' : 'am'
+  const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h)
+  return `${hour12} ${period}`
+}
+
 export default function ReservaConfirmada() {
   const [searchParams] = useSearchParams()
   const mesa = searchParams.get('mesa') || ''
@@ -36,13 +44,13 @@ export default function ReservaConfirmada() {
               </div>
               <div className="form-group">
                 <label className="form-label">Fecha</label>
-                <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{fecha}</p>
+                <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{fecha ? new Date(fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}</p>
               </div>
             </div>
             
             <div className="form-group">
               <label className="form-label">Hora</label>
-              <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{hora}</p>
+              <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{formatHora12h(hora)}</p>
             </div>
           </div>
 

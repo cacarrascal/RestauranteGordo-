@@ -7,8 +7,10 @@ const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Vier
 function generarHoras(inicio, fin) {
   const horas = []
   for (let h = inicio; h <= fin; h++) {
-    horas.push(`${h}:00`)
-    if (h < fin) horas.push(`${h}:30`)
+    const period = h >= 12 ? 'pm' : 'am'
+    const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h)
+    horas.push({ valor: `${h}`, display: `${hour12}:00 ${period}` })
+    if (h < fin) horas.push({ valor: `${h}`, display: `${hour12}:30 ${period}` })
   }
   return horas
 }
@@ -26,20 +28,33 @@ export default function Home() {
   const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [guardando, setGuardando] = useState(false)
-  const [diaSemana, setDiaSemana] = useState(0)
+  const [diaSemana, setDiaSemana] = useState(new Date().getDay())
 
   useEffect(() => {
     if (fecha) {
       const d = new Date(fecha)
       setDiaSemana(d.getDay())
+      setHora('')
     }
   }, [fecha])
 
   const horarioActivo = horarios.find(h => h.dia_semana === diaSemana && h.activo)
-  const horasDisponibles = horarioActivo 
+  let horasDisponibles = horarioActivo 
     ? generarHoras(parseInt(horarioActivo.hora_inicio), parseInt(horarioActivo.hora_fin))
     : []
+
+  if (fecha === new Date().toISOString().split('T')[0]) {
+    const ahora = new Date()
+    const horaActual = ahora.getHours()
+    const minutoActual = ahora.getMinutes()
+    horasDisponibles = horasDisponibles.filter(h => {
+      const hora = parseInt(h.valor)
+      const minuto = h.display.includes(':30') ? 30 : 0
+      return hora > horaActual || (hora === horaActual && minuto > minutoActual)
+    })
+  }
 
   const getMesaEstado = (mesaId, fechaReserva, horaReserva) => {
     if (!fechaReserva || !horaReserva) return 'disponible'
@@ -68,35 +83,17 @@ export default function Home() {
   }
 
   const validarFormulario = () => {
-    if (!mesaSeleccionada) {
-      setError('Selecciona una mesa')
-      return false
-    }
-    if (!fecha) {
-      setError('Selecciona una fecha')
-      return false
-    }
-    if (!hora) {
-      setError('Selecciona una hora')
-      return false
-    }
-    if (numPersonas > mesaSeleccionada.capacidad) {
-      setError(`La mesa solo tiene capacidad para ${mesaSeleccionada.capacidad} personas`)
-      return false
-    }
-    if (!nombre.trim()) {
-      setError('Ingresa tu nombre')
-      return false
-    }
-    if (!telefono.trim()) {
-      setError('Ingresa tu teléfono')
-      return false
-    }
-    if (!email.trim() || !email.includes('@')) {
-      setError('Ingresa un correo válido')
-      return false
-    }
-    return true
+    const newFieldErrors = {}
+    if (!mesaSeleccionada) newFieldErrors.mesa = 'Selecciona una mesa'
+    if (!fecha) newFieldErrors.fecha = 'Selecciona una fecha'
+    if (!hora) newFieldErrors.hora = 'Selecciona una hora'
+    if (numPersonas > mesaSeleccionada?.capacidad) newFieldErrors.personas = `La mesa solo tiene capacidad para ${mesaSeleccionada.capacidad} personas`
+    if (!nombre.trim()) newFieldErrors.nombre = 'Ingresa tu nombre'
+    if (!telefono.trim()) newFieldErrors.telefono = 'Ingresa tu teléfono'
+    if (!email.trim() || !email.includes('@')) newFieldErrors.email = 'Ingresa un correo válido'
+    
+    setFieldErrors(newFieldErrors)
+    return Object.keys(newFieldErrors).length === 0
   }
 
   const handleReservar = async () => {
@@ -181,17 +178,35 @@ export default function Home() {
                   key={mesa.id}
                   className={`mesa-item mesa-${mesa.estado} ${mesaSeleccionada?.id === mesa.id ? 'selected' : ''}`}
                   onClick={() => handleSeleccionarMesa(mesa)}
+                  style={{ 
+                    padding: '0.5rem', 
+                    textAlign: 'center',
+                    cursor: mesa.estado === 'disponible' ? 'pointer' : 'not-allowed',
+                    opacity: mesa.estado === 'disponible' ? 1 : 0.6
+                  }}
                 >
-                  <div className="mesa-numero">Mesa {mesa.numero}</div>
-                  <div className="mesa-capacidad">Cap: {mesa.capacidad}</div>
+                  {mesa.foto ? (
+                    <img src={mesa.foto} alt={`Mesa ${mesa.numero}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '0.5rem' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '80px', background: '#0f3460', borderRadius: '8px', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🪑</div>
+                  )}
+                  <div className="mesa-numero" style={{ fontWeight: 'bold', color: '#fff' }}>Mesa {mesa.numero}</div>
+                  <div className="mesa-capacidad" style={{ fontSize: '0.875rem', color: '#aaa' }}>Cap: {mesa.capacidad}</div>
+                  {mesa.estado !== 'disponible' && (
+                    <div style={{ fontSize: '0.75rem', color: mesa.estado === 'bloqueada' ? '#888' : '#e63946', marginTop: '0.25rem' }}>
+                      {mesa.estado === 'bloqueada' ? 'Bloqueada' : 'No disponible'}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
+            {fieldErrors.mesa && <div style={{ color: '#e63946', fontSize: '0.875rem', marginTop: '0.5rem', textAlign: 'center' }}>{fieldErrors.mesa}</div>}
           </div>
 
           <div className="card" style={{backgroundColor: '#16213e'}}>
             <div className="card-header">
               <h2 className="card-title" style={{color: '#fff'}}>2. Completa tu Reserva</h2>
+              {fieldErrors.fecha && <div style={{ color: '#e63946', fontSize: '0.875rem', marginTop: '0.5rem' }}>{fieldErrors.fecha}</div>}
             </div>
             
             <div className="form-group">
@@ -210,14 +225,16 @@ export default function Home() {
                 <label className="form-label">Hora</label>
                 <select
                   className="form-select"
+                  style={{ borderColor: fieldErrors.hora ? '#e63946' : '' }}
                   value={hora}
-                  onChange={(e) => setHora(e.target.value)}
+                  onChange={(e) => { setHora(e.target.value); setFieldErrors({...fieldErrors, hora: ''}) }}
                 >
                   <option value="">Selecciona hora</option>
                   {horasDisponibles.map(h => (
-                    <option key={h} value={h}>{h}</option>
+                    <option key={h.valor} value={h.valor}>{h.display}</option>
                   ))}
                 </select>
+                {fieldErrors.hora && <span style={{ color: '#e63946', fontSize: '0.75rem' }}>{fieldErrors.hora}</span>}
               </div>
             )}
 
@@ -231,14 +248,16 @@ export default function Home() {
               <label className="form-label">Número de Personas *</label>
               <select
                 className="form-select"
+                style={{ borderColor: fieldErrors.personas ? '#e63946' : '' }}
                 value={numPersonas}
-                onChange={(e) => setNumPersonas(parseInt(e.target.value))}
+                onChange={(e) => { setNumPersonas(parseInt(e.target.value)); setFieldErrors({...fieldErrors, personas: ''}) }}
                 required
               >
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <option key={n} value={n}>{n} {n === 1 ? 'persona' : 'personas'}</option>
                 ))}
               </select>
+              {fieldErrors.personas && <span style={{ color: '#e63946', fontSize: '0.75rem' }}>{fieldErrors.personas}</span>}
             </div>
 
             <div className="form-group">
@@ -246,11 +265,13 @@ export default function Home() {
               <input
                 type="text"
                 className="form-input"
+                style={{ borderColor: fieldErrors.nombre ? '#e63946' : '' }}
                 value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                onChange={(e) => { setNombre(e.target.value); setFieldErrors({...fieldErrors, nombre: ''}) }}
                 placeholder="Tu nombre completo"
                 required
               />
+              {fieldErrors.nombre && <span style={{ color: '#e63946', fontSize: '0.75rem' }}>{fieldErrors.nombre}</span>}
             </div>
 
             <div className="form-group">
@@ -259,11 +280,13 @@ export default function Home() {
                 type="number"
                 inputMode="numeric"
                 className="form-input"
+                style={{ borderColor: fieldErrors.telefono ? '#e63946' : '' }}
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => { setTelefono(e.target.value.replace(/\D/g, '')); setFieldErrors({...fieldErrors, telefono: ''}) }}
                 placeholder="Tu número de teléfono"
                 required
               />
+              {fieldErrors.telefono && <span style={{ color: '#e63946', fontSize: '0.75rem' }}>{fieldErrors.telefono}</span>}
             </div>
 
             <div className="form-group">
@@ -271,20 +294,26 @@ export default function Home() {
               <input
                 type="email"
                 className="form-input"
+                style={{ borderColor: fieldErrors.email ? '#e63946' : '' }}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setFieldErrors({...fieldErrors, email: ''}) }}
                 placeholder="tu@email.com"
                 required
               />
+              {fieldErrors.email && <span style={{ color: '#e63946', fontSize: '0.75rem' }}>{fieldErrors.email}</span>}
             </div>
 
-            {error && <div className="alert alert-danger">{error}</div>}
+            {(error || Object.values(fieldErrors).some(e => e)) && (
+              <div className="alert alert-danger">
+                {Object.values(fieldErrors).filter(e => e).join(', ')}
+              </div>
+            )}
 
             <button
               className="btn btn-primary btn-lg"
               style={{ width: '100%' }}
               onClick={handleReservar}
-              disabled={guardando || !mesaSeleccionada || !fecha || !hora}
+              disabled={guardando}
             >
               {guardando ? 'Reservando...' : 'Confirmar Reserva'}
             </button>

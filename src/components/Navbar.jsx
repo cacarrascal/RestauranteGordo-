@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
-  const { user, signOut } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -18,7 +18,9 @@ export default function Navbar() {
         </Link>
         <div className="nav-links">
           <Link to="/">Reservar</Link>
-          {user ? (
+          {loading ? (
+            <Link to="/login">Admin</Link>
+          ) : user ? (
             <>
               <Link to="/admin">Panel</Link>
               <button className="btn btn-sm btn-outline" onClick={handleSignOut}>

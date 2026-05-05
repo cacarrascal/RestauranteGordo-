@@ -1,18 +1,23 @@
-# Sistema de Reservas - Comidas Rápidas The Gordo
+# Sistema de Reservas - The Gordo Restaurant
 
-Aplicación web SPA para gestión de reservas de mesas en restaurante, construida con React + Supabase.
+Aplicación web SPA para gestión de reservas de mesas en restaurante, construida con React + Vite + Supabase.
 
 ## Características
 
 - **Módulo Cliente**: Reserva autónoma de mesas con visualización en tiempo real
 - **Módulo Administrador**: Panel completo CRUD para gestión de mesas, reservas y horarios
-- **Autenticación**: Sistema de auth con Supabase
+- **Gestión de Imágenes**: Foto por mesa (almacenamiento en Supabase Storage)
+- **Validaciones**: Validación de campos obligatorios y número de mesa único
 - **UI Responsiva**: Diseño adaptado para móviles y desktop
+- **Panel de Administración**: 
+  - Mesas: Crear, editar, eliminar, activar/desactivar
+  - Horarios: Configurar días y horas (formato 12h AM/PM)
+  - Reservas: Ver historial y cancelar
 
 ## Tecnologías
 
 - Frontend: React 18 + Vite
-- Backend: Supabase (BaaS)
+- Backend: Supabase (PostgreSQL + Auth + Storage)
 - Estilos: CSS personalizado
 - Despliegue: Vercel
 
@@ -98,11 +103,18 @@ VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-#### E) Crear Usuario Administrador
+#### E) Crear Storage Bucket (para fotos de mesas)
 
-1. Ir a **Authentication** → **Users**
-2. **Add user**: completar email y contraseña
-3. El usuario pudiendo acceder a `/login`
+1. Ir a **Storage** → **New Bucket**
+2. Nombre: `mesas`
+3. Activar **Public bucket**
+4. Click **Create bucket**
+
+#### F) Credenciales de Acceso Admin
+
+El usuario administrador se crea automáticamente con el SQL:
+- Usuario: `admin`
+- Password: `admin123`
 
 ### 4. Ejecutar en Desarrollo
 
@@ -153,23 +165,25 @@ vercel
 
 ### Página Principal (Cliente)
 
-1. Visualizar salón con mesas:
+1. Visualizar salón con mesas (cada mesa muestra su foto si está asignada):
    - Verde: Disponible
    - Rojo: Ocupada
    - Gris: Bloqueada
 2. Seleccionar mesa disponible
-3. Elegir fecha y hora
+3. Elegir fecha y hora (según horarios configurados)
 4. Completar datos del cliente
 5. Confirmar reserva
 
 ### Panel de Administrador
 
 1. Acceder a `/login`
-2. Credenciales de Supabase Auth
+2. Credenciales por defecto:
+   - Usuario: `admin`
+   - Password: `admin123`
 3. Gestionar:
-   - **Mesas**: Crear, editar, eliminar, bloquear/desbloquear
+   - **Mesas**: Crear (con foto), editar, eliminar, activar/desactivar
    - **Reservas**: Ver historial, cancelar
-   - **Horarios**: Configurar días y horas de atención
+   - **Horarios**: Configurar días y horas (formato 12h AM/PM)
 
 ---
 
@@ -180,10 +194,11 @@ vercel
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | BIGINT | ID único |
-| numero | INTEGER | Número de mesa |
-| capacidad | INTEGER | Personas máximo |
-| ubicacion | TEXT | Ubicación física |
+| numero | INTEGER | Número de mesa (único) |
+| capacidad | INTEGER | Personas máximo (1-20) |
+| ubicacion | TEXT | Ubicación (Interior/Terraza/Patio/Bar) |
 | estado | TEXT | disponible/ocupada/bloqueada |
+| foto | TEXT | URL de imagen de la mesa |
 
 ### reservas
 
