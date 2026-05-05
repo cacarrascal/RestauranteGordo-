@@ -57,11 +57,15 @@ export function AppProvider({ children }) {
       .update(updates)
       .eq('id', id)
       .select()
-    if (!error) {
-      setMesas(prev => prev.map(m => m.id === id ? data[0] : m))
+    if (error) {
+      console.error('Error updating mesa:', error)
+      throw error
+    }
+    if (data && data[0]) {
+      setMesas(prev => prev.map(m => m && m.id === id ? data[0] : m))
       return data[0]
     }
-    throw error
+    await fetchMesas()
   }
 
   const deleteMesa = async (id) => {
@@ -70,7 +74,7 @@ export function AppProvider({ children }) {
       .delete()
       .eq('id', id)
     if (!error) {
-      setMesas(prev => prev.filter(m => m.id !== id))
+      setMesas(prev => prev.filter(m => m && m.id !== id))
     } else {
       throw error
     }
@@ -95,7 +99,7 @@ export function AppProvider({ children }) {
       .delete()
       .eq('id', id)
     if (!error) {
-      setReservas(prev => prev.filter(r => r.id !== id))
+      setReservas(prev => prev.filter(r => r && r.id !== id))
       await fetchMesas()
     } else {
       throw error
@@ -133,7 +137,7 @@ export function AppProvider({ children }) {
       .delete()
       .eq('id', id)
     if (!error) {
-      setHorarios(prev => prev.filter(h => h.id !== id))
+      setHorarios(prev => prev.filter(h => h && h.id !== id))
     } else {
       throw error
     }

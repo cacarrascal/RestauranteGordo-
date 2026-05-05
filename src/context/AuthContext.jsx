@@ -1,19 +1,65 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { supabase } from '../services/supabase'
+import { useNavigate } from 'react-router-dom'
 
 const AuthContext = createContext()
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+  const timeoutRef = useRef(null)
+
+  const resetInactivityTimer = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    if (user) {
+      timeoutRef.current = setTimeout(() => {
+        signOut()
+        navigate('/login?timeout=true')
+      }, INACTIVITY_TIMEOUT)
+    }
+  }
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart']
+    events.forEach(event => {
+      window.addEventListener(event, resetInactivityTimer)
+    })
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, resetInactivityTimer)
+      })
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-    setLoading(false)
+  }, [user])
+
+  useEffect(() => {
+    const verifyUser = async () => {
+      const storedUser = localStorage.getItem('adminUser')
+      if (storedUser) {
+        const userData = JSON.parse(storedUser)
+        const { data: admin } = await supabase
+          .from('administradores')
+          .select('*')
+          .eq('id', userData.id)
+          .single()
+        
+        if (admin) {
+          setUser(userData)
+        } else {
+          localStorage.removeItem('adminUser')
+        }
+      }
+      setLoading(false)
+    }
+    verifyUser()
   }, [])
+
+  useEffect(() => {
+    if (user) resetInactivityTimer()
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }
+  }, [user])
 
   const signIn = async (usuario, password) => {
     const { data: admin, error } = await supabase

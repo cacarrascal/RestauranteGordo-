@@ -18,31 +18,31 @@ export default function ReservaConfirmada() {
       </div>
 
       <div className="container">
-        <div className="card" style={{ maxWidth: '500px', margin: '-3rem auto 0' }}>
+        <div className="card" style={{ maxWidth: '500px', margin: '-3rem auto 0', backgroundColor: '#16213e' }}>
           <div className="card-header">
-            <h2 className="card-title text-center">Detalles de tu Reserva</h2>
+            <h2 className="card-title text-center" style={{color: '#fff'}}>Detalles de tu Reserva</h2>
           </div>
           
           <div className="p-2">
             <div className="form-group">
               <label className="form-label">Cliente</label>
-              <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>{nombre}</p>
+              <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{nombre}</p>
             </div>
             
             <div className="grid grid-2">
               <div className="form-group">
                 <label className="form-label">Mesa</label>
-                <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>{mesa}</p>
+                <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{mesa}</p>
               </div>
               <div className="form-group">
                 <label className="form-label">Fecha</label>
-                <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>{fecha}</p>
+                <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{fecha}</p>
               </div>
             </div>
             
             <div className="form-group">
               <label className="form-label">Hora</label>
-              <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>{hora}</p>
+              <p style={{ fontSize: '1.125rem', fontWeight: '500', color: '#fff' }}>{hora}</p>
             </div>
           </div>
 

@@ -157,21 +157,21 @@ export default function Home() {
 
       <div className="container">
         <div className="grid grid-2" style={{ marginTop: '-2rem' }}>
-          <div className="card">
+          <div className="card" style={{backgroundColor: '#16213e'}}>
             <div className="card-header">
-              <h2 className="card-title">1. Selecciona tu Mesa</h2>
+              <h2 className="card-title" style={{color: '#fff'}}>1. Selecciona tu Mesa</h2>
             </div>
             <div className="legend mb-2">
               <div className="legend-item">
-                <div className="legend-color" style={{ background: '#d4edda' }}></div>
+                <div className="legend-color" style={{ background: '#2a9d8f' }}></div>
                 <span>Disponible</span>
               </div>
               <div className="legend-item">
-                <div className="legend-color" style={{ background: '#f8d7da' }}></div>
+                <div className="legend-color" style={{ background: '#e63946' }}></div>
                 <span>Ocupada</span>
               </div>
               <div className="legend-item">
-                <div className="legend-color" style={{ background: '#e2e3e5' }}></div>
+                <div className="legend-color" style={{ background: '#888' }}></div>
                 <span>Bloqueada</span>
               </div>
             </div>
@@ -189,9 +189,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card" style={{backgroundColor: '#16213e'}}>
             <div className="card-header">
-              <h2 className="card-title">2. Completa tu Reserva</h2>
+              <h2 className="card-title" style={{color: '#fff'}}>2. Completa tu Reserva</h2>
             </div>
             
             <div className="form-group">
@@ -227,12 +227,13 @@ export default function Home() {
               </div>
             )}
 
-            <div className="form-group">
-              <label className="form-label">N��mero de Personas</label>
+<div className="form-group">
+              <label className="form-label">Número de Personas *</label>
               <select
                 className="form-select"
                 value={numPersonas}
                 onChange={(e) => setNumPersonas(parseInt(e.target.value))}
+                required
               >
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <option key={n} value={n}>{n} {n === 1 ? 'persona' : 'personas'}</option>
@@ -241,18 +242,19 @@ export default function Home() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Nombre</label>
+              <label className="form-label">Nombre *</label>
               <input
                 type="text"
                 className="form-input"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Tu nombre completo"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Teléfono</label>
+              <label className="form-label">Teléfono *</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -260,17 +262,19 @@ export default function Home() {
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ''))}
                 placeholder="Tu número de teléfono"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Correo Electrónico</label>
+              <label className="form-label">Correo Electrónico *</label>
               <input
                 type="email"
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
+                required
               />
             </div>
 
