@@ -254,10 +254,11 @@ export default function Home() {
             <div className="form-group">
               <label className="form-label">Teléfono</label>
               <input
-                type="tel"
+                type="number"
+                inputMode="numeric"
                 className="form-input"
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ''))}
                 placeholder="Tu número de teléfono"
               />
             </div>
