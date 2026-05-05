@@ -100,7 +100,7 @@ Editar `.env` con las credenciales:
 
 ```
 VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 #### E) Crear Storage Bucket (para fotos de mesas)
@@ -113,8 +113,8 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### F) Credenciales de Acceso Admin
 
 El usuario administrador se crea automáticamente con el SQL:
-- Usuario: `admin`
-- Password: `admin123`
+- Usuario: `xxxxxxx`
+- Password: `xxxxxxx`
 
 ### 4. Ejecutar en Desarrollo
 
@@ -178,8 +178,8 @@ vercel
 
 1. Acceder a `/login`
 2. Credenciales por defecto:
-   - Usuario: `admin`
-   - Password: `admin123`
+   - Usuario: `xxxxxxx`
+   - Password: `xxxxxxxxx`
 3. Gestionar:
    - **Mesas**: Crear (con foto), editar, eliminar, activar/desactivar
    - **Reservas**: Ver historial, cancelar
@@ -270,4 +270,4 @@ npm install
 
 ## Licencia
 
-MIT License - 2024 The Gordo Restaurant
+MIT License - 2025 The Gordo Restaurant
