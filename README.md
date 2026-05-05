@@ -270,4 +270,4 @@ npm install
 
 ## Licencia
 
-MIT License - 2025 The Gordo Restaurant
+MIT License - 2026 The Gordo Restaurant
